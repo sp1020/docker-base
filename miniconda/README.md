@@ -8,7 +8,7 @@ Conda is powerful package management tool and various tools can be installed wit
 
 docker-miniconda image can be used as a base image to install packages using conda. 
 
-* GitHub Link: 
+* GitHub Link: https://github.com/sp1020/docker-base/tree/main/miniconda
 * DockerHub Link: https://hub.docker.com/repository/docker/sphong/miniconda
 
 ## Quick Start 
