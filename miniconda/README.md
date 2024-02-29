@@ -25,6 +25,14 @@ docker pull sphong/miniconda
 docker run -it --rm sphong/miniconda /bin/bash
 ```
 
+3. Create a container with user 
+
+* In order to use non-root user identifier, the user id and group id should be passed as environmental variables `USER_ID` and `GROUP_ID`. 
+
+```
+docker run -it -rm -e USER_ID=$(id -u) -e GROUP_Id=$(id -g) sphong/miniconda /bin/bash
+```
+
 ## Prerequisite 
 
 - docker 

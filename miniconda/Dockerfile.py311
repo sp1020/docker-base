@@ -1,13 +1,32 @@
+# Ubuntu image 
 FROM ubuntu:24.04
-ENV PATH="/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
 
-RUN apt-get update
-RUN apt-get install -y wget && rm -rf /var/lib/apt/list/*
+# Install required packages 
+RUN apt-get update && apt-get install -y wget bzip2 ca-certificates sudo && \
+    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/1.14/gosu-amd64" && \
+    chmod +x /usr/local/bin/gosu && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN wget \
-    https://repo.anaconda.com/miniconda/Miniconda3-py311_23.11.0-2-Linux-x86_64.sh \ 
-    && mkdir /root/.conda \
-    && bash Miniconda3-py311_23.11.0-2-Linux-x86_64.sh -b \
-    && rm -f Miniconda3-py311_23.11.0-2-Linux-x86_64.sh \
-    && conda init
+# Download and install miniconda 
+ENV CONDA_DIR /opt/conda
+ENV PATH="${CONDA_DIR}/bin:${PATH}"
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py311_23.11.0-2-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p $CONDA_DIR && \
+    rm ~/miniconda.sh && \
+    ln -s ${CONDA_DIR}/etc/profile.d/conda.sh /etc/profile.d/conda.sh
+
+# Make conda available to all users
+RUN echo ". ${CONDA_DIR}/etc/profile.d/conda.sh" >> /etc/skel/.bashrc
+
+# Adjust permissions to allow all users to use conda
+RUN chmod -R a+rwx ${CONDA_DIR}
+RUN chmod a+rx ${CONDA_DIR}/bin/*
+
+# activate conda base environment
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Start from a shell
+CMD ["/bin/bash"]
